@@ -23,11 +23,13 @@
   };
 
   function create(){
+    game.physics.startSystem(Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     cursors.fire = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     cursors.fire.onUp.add( handlePlayerFire );
     player = game.add.sprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GFX,8);
     player.moveSpeed = INITIAL_MOVESPEED;
+    player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
     enemies = game.add.group();
 
@@ -36,11 +38,10 @@
   function update(){
     handlePlayerMovement();
     handleBulletAnimations();
-
     cleanup();
     randomlySpawnEnemy();
     handleEnemyActions();
-    handleCollisions()
+    handleCollisions();
   };
 
   //handler functions
@@ -55,18 +56,18 @@
     }
     switch( true ){
       case cursors.left.isDown:
-        player.x -= player.moveSpeed * movingH;
+        player.angle += -4;
         break;
       case cursors.right.isDown:
-        player.x += player.moveSpeed * movingH;
+        player.angle += 4;
         break;
     }
     switch( true ){
       case cursors.down.isDown:
-        player.y += player.moveSpeed * movingV;
+        player.y += player.moveSpeed;
         break;
       case cursors.up.isDown:
-        player.y -= player.moveSpeed * movingV;
+        player.y -= player.moveSpeed;
         break;
     }
   };
