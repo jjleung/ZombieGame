@@ -64,7 +64,7 @@
     }
     switch( true ){
       case cursors.down.isDown:
-        player.y += player.moveSpeed;
+        // player.y += player.moveSpeed;
         break;
       case cursors.up.isDown:
         player.y -= player.moveSpeed;
