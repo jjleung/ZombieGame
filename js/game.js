@@ -72,12 +72,18 @@
     }
   };
 
+  function radians(degrees){
+    return degrees * Math.PI /180;
+  }
+
   function handlePlayerFire() {
     playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
   };
 
   function handleBulletAnimations(){
-    playerBullets.children.forEach( bullet => bullet.y -= PLAYER_BULLET_SPEED );
+    playerBullets.children.forEach( bullet => {
+      bullet.x -= Math.cos(radians(player.angle*PLAYER_BULLET_SPEED));
+    } );
   }
 
   function handlePlayerHit() {
