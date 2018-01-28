@@ -44,6 +44,7 @@
     cursors._left = akey;
     cursors._down = sKey;
     cursors._right = dKey;
+    enemies.enableBody = true;
   };
 
   function update(){
@@ -174,7 +175,10 @@
 
   function gameOver() {
     game.state.destroy();
-    game.add.text(90, 200, 'YOUR HEAD ASPLODE', { fill: '#FFFFFF' });
-  };
+    game.add.text(GAME_WIDTH/2 , 200, 'YOU HAVE BEEN EATED', { fill: '#FFFFFF' });
+    let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
+    playAgain.inputEnabled = true;
+    playAgain.events.onInputUp.add(() => window.location.reload());
+  }
 
 })(window.Phaser);
