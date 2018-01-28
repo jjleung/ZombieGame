@@ -9,7 +9,7 @@
   const ENEMY_SPAWN_FREQ = 600;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 20;
+  const ENEMY_MOVE_ACCEL = 450;
   const SQRT_TWO = Math.sqrt(2);
   const randomGenerator = new Phaser.RandomDataGenerator();
   
@@ -157,7 +157,7 @@
 
   function handleEnemyActions() {
     enemies.children.forEach( zombie => {
-      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
+      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL, 200, 200);
     });
   }
 
