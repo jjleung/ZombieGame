@@ -7,6 +7,7 @@
   const ZOMBIES = 'zombies';
   const WIZARD = 'wizard';
   const GALAXY = 'grass';
+  const ORB = 'orb';
   const INITIAL_MOVESPEED = 3;
   const PLAYER_BULLET_SPEED = 6;
   const ENEMY_SPAWN_FREQ = 150;
@@ -32,6 +33,7 @@
     game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
     game.load.spritesheet(ZOMBIES, '../assets/tiny-zombies.png', 30, 33, 96)
     game.load.spritesheet(WIZARD, '../assets/wizard.png', 50, 60, 64);
+    game.load.spritesheet(ORB, '../assets/smallBLueOrb.png', 25, 25);
     game.load.image(GALAXY, '../assets/road.png')
   };
 
@@ -140,7 +142,7 @@
 
   function handlePlayerFire() {
     if(playerBullets.children.length <6){
-      playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
+      playerBullets.add(game.add.sprite(player.x, player.y, ORB, 0));
     }
     
    };
