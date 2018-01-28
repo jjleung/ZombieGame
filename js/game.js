@@ -34,13 +34,7 @@
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
     enemies = game.add.group();
-<<<<<<< HEAD
-=======
     enemies.enableBody = true;
-    enemyBullets = game.add.group();
-    enemyBullets.enableBody = true;
-
->>>>>>> 4adb439e1960b03edf42c64b178e0d3313fbf303
   };
 
   function update(){
@@ -177,7 +171,7 @@
 
   function gameOver() {
     game.state.destroy();
-    game.add.text(GAME_WIDTH/2 , 200, 'YOUR HEAD ASPLODE', { fill: '#FFFFFF' });
+    game.add.text(GAME_WIDTH/2 , 200, 'YOU HAVE BEEN EATED', { fill: '#FFFFFF' });
     let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
     playAgain.inputEnabled = true;
     playAgain.events.onInputUp.add(() => window.location.reload());
