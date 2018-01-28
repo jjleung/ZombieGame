@@ -34,17 +34,6 @@
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
     enemies = game.add.group();
-<<<<<<< HEAD
-    wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
-    aKey = game.input.keyboard.addKey(Phaser.Keyboard.Q);
-    sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
-    dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
-    cursors._up = wKey;
-    cursors._left = aKey;
-    cursors._down = sKey;
-    cursors._right = dKey;
-=======
->>>>>>> c3f60c83d90c2ce8e0c7d1e11570f4b516334695
     enemies.enableBody = true;
   };
 
@@ -77,17 +66,6 @@
         player.angle += 4;
         break;
     }
-<<<<<<< HEAD
-    switch( true ){
-      case cursors._down.isDown:
-        player.y += player.moveSpeed;
-        break;
-      case cursors._up.isDown:
-        player.y -= player.moveSpeed;
-        break;
-    }
-=======
->>>>>>> c3f60c83d90c2ce8e0c7d1e11570f4b516334695
   };
 
   function radians(degrees){
