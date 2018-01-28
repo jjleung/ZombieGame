@@ -22,9 +22,8 @@
   let cursors;
   let playerBullets;
   let enemies;
-  let zombies;
-  let frameNames;
-  let zombieCollissionGroup;
+  let score = 0;
+  let scoreText;
 
   function preload(){
     game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
@@ -33,6 +32,8 @@
 
   function create(){
     game.physics.startSystem(Phaser.Physics.P2JS);
+
+    scoreText = game.add.text(16,16, 'score: 0', {fontSize: '14px', fill: '#FFF'});
 
     cursors = game.input.keyboard.createCursorKeys();
     cursors.fire = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
@@ -60,34 +61,20 @@
   };
 
   function update(){
+    updateScore(1);
     handlePlayerMovement();
     handleBulletAnimations();
     cleanup();
     randomlySpawnEnemy();
     // handleEnemyActions();
     handleCollisions();
-    zombieAnimations();
+    // zombieAnimations();
     handleZombieCollisions();
 
     enemies.forEachAlive(handleEnemyActions, this);
   };
 
   //handler functions
-
-  function zombieAnimations() {
-    zombies = game.add.group();
-    for (var i = 0; i < 25; i++){
-      if (randomGenerator.between(0, ZOMBIE_SPAWN_FREQ) === 0) {
-        let randomY = randomGenerator.between(0, GAME_HEIGHT);
-        let randomX = randomGenerator.between(0, GAME_WIDTH);
-        zombies.create(randomX, randomY, ZOMBIES, 0);
-      }
-      zombies.callAll('animations.add', 'animations', 'walk', [0, 1, 2], 5, true);
-      zombies.callAll('animations.play', 'animations', 'walk');
-    }
-}
-
-
   function handlePlayerMovement() {
     let movingH = SQRT_TWO;
     let movingV = SQRT_TWO;
@@ -156,22 +143,18 @@
           bullet => enemy.overlap(bullet) 
         ) 
       );
-
     if( enemiesHit.length ){
       // clean up bullets that land
       playerBullets.children
         .filter( bullet => bullet.overlap(enemies) )
         .forEach( removeBullet );
-
       enemiesHit.forEach( destroyEnemy );
     }
       // check if enemies hit the player
       enemiesHit = enemies.children
       .filter( enemy => enemy.overlap(player) );
-  
     if( enemiesHit.length){
       handlePlayerHit();
-
       enemiesHit.forEach( destroyEnemy );
     }
   };
@@ -235,6 +218,7 @@
   };
 
   function removeBullet(bullet) {
+    updateScore(100000);
     bullet.destroy();
   }
 
@@ -248,6 +232,11 @@
     let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
     playAgain.inputEnabled = true;
     playAgain.events.onInputUp.add(() => window.location.reload());
+  }
+
+  function updateScore(num) {
+    score += num;
+    scoreText.text = 'Score: ' + score;
   }
 
 })(window.Phaser);
