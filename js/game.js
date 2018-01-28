@@ -85,7 +85,7 @@
   function handleBulletAnimations(){
     playerBullets.children.forEach( (bullet, index, array) => {
       if(index === array.length - 1){
-        bullet.x -= Math.cos(radians(player.angle+90))*PLAYER_BULLET_SPEED;
+         bullet.x -= Math.cos(radians(player.angle+90))*PLAYER_BULLET_SPEED;
         bullet.y -= Math.sin(radians(player.angle+90))*PLAYER_BULLET_SPEED;
       }
       
