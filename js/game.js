@@ -9,8 +9,8 @@
   const ENEMY_SPAWN_FREQ = 600;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 20;
-  const SQRT_TWO = Math.sqrt(2);
+  const ENEMY_MOVE_ACCEL = 450;
+  const SQRT_TWO = Math.sqrt(1);
   const randomGenerator = new Phaser.RandomDataGenerator();
   
   const game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, GAME_CONTAINER_ID, {preload, create, update});
@@ -35,7 +35,7 @@
     playerBullets = game.add.group();
     enemies = game.add.group();
     wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
-    aKey = game.input.keyboard.addKey(Phaser.Keyboard.Q);
+    aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
     cursors._up = wKey;
@@ -67,6 +67,7 @@
       movingV = 1; // slow down diagonal movement
     }
     switch( true ){
+
       case cursors.left.isDown:
         player.angle += -4;
         break;
@@ -75,11 +76,20 @@
         break;
     }
     switch( true ){
+      case cursors._left.isDown:
+        player.x -= player.moveSpeed * movingH;
+        break;
+      case cursors._right.isDown:
+        player.x += player.moveSpeed * movingH;
+        break;
+    }      
+    
+    switch(true){
       case cursors._down.isDown:
-        player.y += player.moveSpeed;
+        player.y += player.moveSpeed * movingV;
         break;
       case cursors._up.isDown:
-        player.y -= player.moveSpeed;
+        player.y -= player.moveSpeed * movingV;
         break;
     }
   };
@@ -157,7 +167,7 @@
 
   function handleEnemyActions() {
     enemies.children.forEach( zombie => {
-      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
+      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL, 200, 200);
     });
   }
 
