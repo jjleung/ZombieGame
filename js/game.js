@@ -5,19 +5,22 @@
   const GAME_CONTAINER_ID = 'game';
   const GFX = 'gfx';
   const ZOMBIES = 'zombies';
-  const INITIAL_MOVESPEED = 4;
+  const WIZARD = 'wizard';
+  const GALAXY = 'grass';
+  const INITIAL_MOVESPEED = 3;
   const PLAYER_BULLET_SPEED = 6;
-  const ENEMY_SPAWN_FREQ = 100;
+  const ENEMY_SPAWN_FREQ = 150;
   const ZOMBIE_SPAWN_FREQ = 5000;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 180;
-  const SQRT_TWO = Math.sqrt(1);
+  const ENEMY_MOVE_ACCEL = 150;
+  const SQRT_TWO = Math.sqrt(2);
   const randomGenerator = new Phaser.RandomDataGenerator();
 
   
   const game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, GAME_CONTAINER_ID, {preload, create, update});
 
+  let back;
   let player;
   let cursors;
   let playerBullets;
@@ -28,6 +31,8 @@
   function preload(){
     game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
     game.load.spritesheet(ZOMBIES, '../assets/tiny-zombies.png', 30, 33, 96)
+    game.load.spritesheet(WIZARD, '../assets/wizard.png', 50, 60, 64);
+    game.load.image(GALAXY, '../assets/road.png')
   };
 
   function create(){
@@ -35,11 +40,13 @@
 
     scoreText = game.add.text(16,16, 'score: 0', {fontSize: '14px', fill: '#FFF'});
 
+    back = game.add.image(-500, -500, GALAXY);
+
     cursors = game.input.keyboard.createCursorKeys();
     cursors.fire = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     cursors.fire.onUp.add( handlePlayerFire );
 
-    player = game.add.sprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GFX,8);
+    player = game.add.sprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, WIZARD, 0);
     player.moveSpeed = INITIAL_MOVESPEED;
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
@@ -75,6 +82,22 @@
   };
 
   //handler functions
+
+  function zombieAnimations() {
+    zombies = game.add.group();
+    for (var i = 0; i < 25; i++){
+      if (randomGenerator.between(0, ZOMBIE_SPAWN_FREQ) === 0) {
+        let randomY = randomGenerator.between(0, GAME_HEIGHT);
+        let randomX = randomGenerator.between(0, GAME_WIDTH);
+        zombies.create(randomX, randomY, ZOMBIES, 0);
+        console.log(zombies);
+      }
+      zombies.callAll('animations.add', 'animations', 'walk', [0, 1, 2], 5, true);
+      zombies.callAll('animations.play', 'animations', 'walk');
+    }
+}
+
+
   function handlePlayerMovement() {
     let movingH = SQRT_TWO;
     let movingV = SQRT_TWO;
@@ -157,6 +180,7 @@
       handlePlayerHit();
       enemiesHit.forEach( destroyEnemy );
     }
+
   };
 
   function handleZombieCollisions(){
