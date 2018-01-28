@@ -5,13 +5,11 @@
   const GAME_CONTAINER_ID = 'game';
   const GFX = 'gfx';
   const INITIAL_MOVESPEED = 4;
-  const PLAYER_BULLET_SPEED = 6;
-  const ENEMY_SPAWN_FREQ = 600;
-  const ENEMY_SPEED = 4.5;
-  const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 20;
   const SQRT_TWO = Math.sqrt(2);
+  const PLAYER_BULLET_SPEED = 8;
+  const ENEMY_SPAWN_FREQ = 100;
   const randomGenerator = new Phaser.RandomDataGenerator();
+  const ENEMY_SPEED = 4.5;
   
   const game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, GAME_CONTAINER_ID, {preload, create, update});
 
@@ -19,6 +17,10 @@
   let cursors;
   let playerBullets;
   let enemies;
+  let wKey;
+  let aKey;
+  let sKey;
+  let dKey;
 
   function preload(){
     game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
@@ -34,13 +36,14 @@
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
     enemies = game.add.group();
-<<<<<<< HEAD
-=======
-    enemies.enableBody = true;
-    enemyBullets = game.add.group();
-    enemyBullets.enableBody = true;
-
->>>>>>> 4adb439e1960b03edf42c64b178e0d3313fbf303
+    wKey = game.input.keyboard.addKey(Phaser.Keyboard.W)
+    aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
+    dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    cursors._up = wKey;
+    cursors._left = akey;
+    cursors._down = sKey;
+    cursors._right = dKey;
   };
 
   function update(){
@@ -70,6 +73,14 @@
         break;
       case cursors.right.isDown:
         player.angle += 4;
+        break;
+    }
+    switch( true ){
+      case cursors.down.isDown:
+        // player.y += player.moveSpeed;
+        break;
+      case cursors._up.isDown:
+        player.y -= player.moveSpeed;
         break;
     }
   };
@@ -131,25 +142,11 @@
       let randomX = randomGenerator.between(0, GAME_WIDTH);
       enemies.add( game.add.sprite(randomX, -24, GFX, 0));
     }
-    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
-      let randomX = randomGenerator.between(0, GAME_WIDTH);
-      enemies.add( game.add.sprite(randomX, GAME_HEIGHT +24, GFX, 0));
-    }
-    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
-      let randomY = randomGenerator.between(0, GAME_HEIGHT);
-      enemies.add( game.add.sprite(-24, randomY, GFX, 0));
-    }
-    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
-      let randomY = randomGenerator.between(0, GAME_HEIGHT);
-      enemies.add( game.add.sprite(GAME_WIDTH+24, randomY, GFX, 0));
-    }
   }
 
   function handleEnemyActions() {
-    enemies.children.forEach( zombie => {
-      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
-    });
-  }
+    enemies.children.forEach( enemy => enemy.y += ENEMY_SPEED );
+  };
 
   //utility functions
   function cleanup() {
@@ -160,11 +157,11 @@
       .filter( bullet => bullet.x < 0 )
       .forEach( bullet => bullet.destroy() );
     playerBullets.children
-      .filter( bullet => bullet.x > GAME_WIDTH )
-      .forEach( bullet => bullet.destroy() );
+    .filter( bullet => bullet.x > GAME_WIDTH )
+    .forEach( bullet => bullet.destroy() );
     playerBullets.children
       .filter( bullet => bullet.y > GAME_HEIGHT )
-      .forEach( bullet => bullet.destroy() );
+    .forEach( bullet => bullet.destroy() );
   };
 
   function removeBullet(bullet) {
@@ -177,10 +174,7 @@
 
   function gameOver() {
     game.state.destroy();
-    game.add.text(GAME_WIDTH/2 , 200, 'YOUR HEAD ASPLODE', { fill: '#FFFFFF' });
-    let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
-    playAgain.inputEnabled = true;
-    playAgain.events.onInputUp.add(() => window.location.reload());
-  }
+    game.add.text(90, 200, 'YOUR HEAD ASPLODE', { fill: '#FFFFFF' });
+  };
 
 })(window.Phaser);
