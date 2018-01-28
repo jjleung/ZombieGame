@@ -73,9 +73,8 @@
     handleBulletAnimations();
     cleanup();
     randomlySpawnEnemy();
-    // handleEnemyActions();
     handleCollisions();
-    // zombieAnimations();
+    zombieAnimations();
     handleZombieCollisions();
 
     enemies.forEachAlive(handleEnemyActions, this);
