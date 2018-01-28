@@ -6,10 +6,10 @@
   const GFX = 'gfx';
   const INITIAL_MOVESPEED = 4;
   const PLAYER_BULLET_SPEED = 6;
-  const ENEMY_SPAWN_FREQ = 100;
+  const ENEMY_SPAWN_FREQ = 600;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_BULLET_ACCEL = 100;
+  const ENEMY_MOVE_ACCEL = 20;
   const SQRT_TWO = Math.sqrt(2);
   const randomGenerator = new Phaser.RandomDataGenerator();
   
@@ -35,6 +35,7 @@
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
     enemies = game.add.group();
+    enemies.enableBody = true;
     enemyBullets = game.add.group();
     enemyBullets.enableBody = true;
 
@@ -67,21 +68,10 @@
         player.angle += 4;
         break;
     }
-    // switch( true ){
-    //   case cursors.down.isDown:
-    //     player.y += player.moveSpeed;
-    //     break;
-    //   case cursors.up.isDown:
-    //     player.y -= player.moveSpeed;
-    //     break;
-    // }
   };
 
   function handlePlayerFire() {
     playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
-    enemyBullets.children.forEach( bullet => {
-      game.physics.arcade.accelerateToObject(bullet, player, ENEMY_BULLET_ACCEL);
-    });
   };
 
   function handleBulletAnimations(){
@@ -136,20 +126,24 @@
       let randomX = randomGenerator.between(0, GAME_WIDTH);
       enemies.add( game.add.sprite(randomX, -24, GFX, 0));
     }
+    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
+      let randomX = randomGenerator.between(0, GAME_WIDTH);
+      enemies.add( game.add.sprite(randomX, GAME_HEIGHT +24, GFX, 0));
+    }
+    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
+      let randomY = randomGenerator.between(0, GAME_HEIGHT);
+      enemies.add( game.add.sprite(-24, randomY, GFX, 0));
+    }
+    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
+      let randomY = randomGenerator.between(0, GAME_HEIGHT);
+      enemies.add( game.add.sprite(GAME_WIDTH+24, randomY, GFX, 0));
+    }
   }
 
   function handleEnemyActions() {
-    enemies.children.forEach( enemy => enemy.y += ENEMY_SPEED );
-    enemies.children.forEach( enemy => randomEnemyFire(enemy));
-  }
-
-  function randomEnemyFire(enemy) {
-    if (randomGenerator.between(0, ENEMY_FIRE_FREQ) === 0) {
-      let enemyBullet = game.add.sprite(enemy.x, enemy.y, GFX, 9);
-      enemyBullet.checkWorldBounds = true;
-      enemyBullet.outOfBoundsKill = true;
-      enemyBullets.add( enemyBullet );
-    }
+    enemies.children.forEach( zombie => {
+      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
+    });
   }
 
   //utility functions
@@ -169,8 +163,8 @@
 
   function gameOver() {
     game.state.destroy();
-    game.add.text(90, 200, 'YOUR HEAD ASPLODE', { fill: '#FFFFFF' });
-    let playAgain = game.add.text(120, 300, `Play Again`, { fill: `#FFFFFF` });
+    game.add.text(GAME_WIDTH/2 , 200, 'YOUR HEAD ASPLODE', { fill: '#FFFFFF' });
+    let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
     playAgain.inputEnabled = true;
     playAgain.events.onInputUp.add(() => window.location.reload());
   }
