@@ -32,7 +32,6 @@
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
     enemies = game.add.group();
-
   };
 
   function update(){
@@ -79,16 +78,16 @@
   }
 
   function handlePlayerFire() {
-    playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
-  };
+    if(playerBullets.children.length <6){
+      playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
+    }
+    
+   };
 
   function handleBulletAnimations(){
     playerBullets.children.forEach( (bullet, index, array) => {
-      if(index === array.length - 1){
-         bullet.x -= Math.cos(radians(player.angle+90))*PLAYER_BULLET_SPEED;
+        bullet.x -= Math.cos(radians(player.angle+90))*PLAYER_BULLET_SPEED;
         bullet.y -= Math.sin(radians(player.angle+90))*PLAYER_BULLET_SPEED;
-      }
-      
     } );
   }
 
@@ -140,7 +139,16 @@
   //utility functions
   function cleanup() {
     playerBullets.children
-      .filter( bullet => bullet.y < -14 )
+      .filter( bullet => bullet.y < 0 )
+      .forEach( bullet => bullet.destroy() );
+    playerBullets.children
+      .filter( bullet => bullet.x < 0 )
+      .forEach( bullet => bullet.destroy() );
+    playerBullets.children
+      .filter( bullet => bullet.x > GAME_WIDTH )
+      .forEach( bullet => bullet.destroy() );
+    playerBullets.children
+      .filter( bullet => bullet.y > GAME_HEIGHT )
       .forEach( bullet => bullet.destroy() );
   };
 
