@@ -19,12 +19,15 @@
   let cursors;
   let playerBullets;
   let enemies;
+  let score = 0;
+  let scoreText;
 
   function preload(){
     game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
   };
 
   function create(){
+    scoreText = game.add.text(16,16, 'score: 0', {fontSize: '14px', fill: '#FFF'});
     game.physics.startSystem(Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     cursors.fire = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
@@ -46,6 +49,7 @@
   };
 
   function update(){
+    updateScore(1);
     handlePlayerMovement();
     handleBulletAnimations();
     cleanup();
@@ -55,8 +59,6 @@
   };
 
   //handler functions
-
-
   function handlePlayerMovement() {
     let movingH = SQRT_TWO;
     let movingV = SQRT_TWO;
@@ -125,22 +127,18 @@
           bullet => enemy.overlap(bullet) 
         ) 
       );
-
     if( enemiesHit.length ){
       // clean up bullets that land
       playerBullets.children
         .filter( bullet => bullet.overlap(enemies) )
         .forEach( removeBullet );
-
       enemiesHit.forEach( destroyEnemy );
     }
       // check if enemies hit the player
       enemiesHit = enemies.children
       .filter( enemy => enemy.overlap(player) );
-  
     if( enemiesHit.length){
       handlePlayerHit();
-
       enemiesHit.forEach( destroyEnemy );
     }
   };
@@ -188,11 +186,12 @@
   };
 
   function removeBullet(bullet) {
+    updateScore(100000);
     bullet.destroy();
   }
 
   function destroyEnemy(enemy) {
-    enemy.kill();
+    enemy.destroy();
   }
 
   function gameOver() {
@@ -201,6 +200,11 @@
     let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
     playAgain.inputEnabled = true;
     playAgain.events.onInputUp.add(() => window.location.reload());
+  }
+
+  function updateScore(num) {
+    score += num;
+    scoreText.text = 'Score: ' + score;
   }
 
 })(window.Phaser);
