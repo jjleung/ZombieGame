@@ -36,12 +36,12 @@
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
     enemies = game.add.group();
-    wKey = game.input.keyboard.addKey(Phaser.Keyboard.W)
-    aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
+    aKey = game.input.keyboard.addKey(Phaser.Keyboard.Q);
     sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
     cursors._up = wKey;
-    cursors._left = akey;
+    cursors._left = aKey;
     cursors._down = sKey;
     cursors._right = dKey;
     enemies.enableBody = true;
@@ -77,8 +77,8 @@
         break;
     }
     switch( true ){
-      case cursors.down.isDown:
-        // player.y += player.moveSpeed;
+      case cursors._down.isDown:
+        player.y += player.moveSpeed;
         break;
       case cursors._up.isDown:
         player.y -= player.moveSpeed;
