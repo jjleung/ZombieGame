@@ -7,11 +7,11 @@
   const ZOMBIES = 'zombies';
   const INITIAL_MOVESPEED = 4;
   const PLAYER_BULLET_SPEED = 6;
-  const ENEMY_SPAWN_FREQ = 600;
+  const ENEMY_SPAWN_FREQ = 100;
   const ZOMBIE_SPAWN_FREQ = 5000;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 450;
+  const ENEMY_MOVE_ACCEL = 180;
   const SQRT_TWO = Math.sqrt(1);
   const randomGenerator = new Phaser.RandomDataGenerator();
 
@@ -112,7 +112,7 @@
         break;
       case cursors._right.isDown:
         player.x += player.moveSpeed * movingH;
-        break;
+        break;sa
     }      
     
     switch(true){
@@ -207,7 +207,7 @@
   }
 
   function handleEnemyActions(zombie) {
-    accelerateToObject(zombie, player, 150);
+    accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
   }
 
   function accelerateToObject(obj1, obj2, speed) {
