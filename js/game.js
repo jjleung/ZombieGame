@@ -45,6 +45,8 @@
   };
 
   //handler functions
+
+
   function handlePlayerMovement() {
     let movingH = SQRT_TWO;
     let movingV = SQRT_TWO;
@@ -62,14 +64,14 @@
         player.angle += 4;
         break;
     }
-    switch( true ){
-      case cursors.down.isDown:
-        // player.y += player.moveSpeed;
-        break;
-      case cursors.up.isDown:
-        player.y -= player.moveSpeed;
-        break;
-    }
+    // switch( true ){
+    // //   case cursors.down.isDown:
+    // //     // player.y += player.moveSpeed;
+    // //     break;
+    // //   case cursors.up.isDown:
+    // //     // player.y -= player.moveSpeed;
+    // //     break;
+    // // }
   };
 
   function radians(degrees){
@@ -81,8 +83,9 @@
   };
 
   function handleBulletAnimations(){
-    playerBullets.children.forEach( bullet => {
-      bullet.x -= Math.cos(radians(player.angle*PLAYER_BULLET_SPEED));
+    playerBullets.children.forEach( bullet => {2
+      bullet.x -= Math.cos(radians(player.angle+90))*PLAYER_BULLET_SPEED;
+      bullet.y -= Math.sin(radians(player.angle+90))*PLAYER_BULLET_SPEED;
     } );
   }
 
