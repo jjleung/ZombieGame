@@ -24,6 +24,7 @@
   let enemies;
   let zombies;
   let frameNames;
+  let zombieCollissionGroup;
 
   function preload(){
     game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
@@ -31,7 +32,7 @@
   };
 
   function create(){
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.startSystem(Phaser.Physics.P2JS);
 
     cursors = game.input.keyboard.createCursorKeys();
     cursors.fire = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
@@ -43,6 +44,8 @@
     playerBullets = game.add.group();
 
     enemies = game.add.group();
+    enemies.enableBody = true;
+    enemies.physicsBodyType = Phaser.Physics.P2JS;
     wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
     aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
@@ -52,6 +55,8 @@
     cursors._down = sKey;
     cursors._right = dKey;
     enemies.enableBody = true;
+
+    zombieCollisionGroup = game.physics.p2.createCollisionGroup();
   };
 
   function update(){
@@ -59,9 +64,12 @@
     handleBulletAnimations();
     cleanup();
     randomlySpawnEnemy();
-    handleEnemyActions();
+    // handleEnemyActions();
     handleCollisions();
     zombieAnimations();
+    handleZombieCollisions();
+
+    enemies.forEachAlive(handleEnemyActions, this);
   };
 
   //handler functions
@@ -168,6 +176,14 @@
     }
   };
 
+  function handleZombieCollisions(){
+    let enemyCrowd = enemies.children;
+
+    enemyCrowd.forEach ( enemy => enemy.body.setCollisionGroup(zombieCollisionGroup));
+    enemyCrowd.forEach ( enemy => enemy.body.collides(zombieCollisionGroup));
+
+  }
+
   //behavior functions
   function randomlySpawnEnemy() {
     if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
@@ -190,11 +206,16 @@
     }
   }
 
-  function handleEnemyActions() {
-    enemies.children.forEach( zombie => {
-      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL, 200, 200);
-    });
+  function handleEnemyActions(zombie) {
+    accelerateToObject(zombie, player, 150);
   }
+
+  function accelerateToObject(obj1, obj2, speed) {
+    if (typeof speed === 'undefined') { speed = ENEMY_MOVE_ACCEL; }
+    var angle = Math.atan2(obj2.y - obj1.y, obj2.x - obj1.x);
+    obj1.body.velocity.x = Math.cos(angle) * speed;    // accelerateToObject 
+    obj1.body.velocity.y = Math.sin(angle) * speed;
+}
 
 
   //utility functions
@@ -218,7 +239,7 @@
   }
 
   function destroyEnemy(enemy) {
-    enemy.kill();
+    enemy.destroy();
   }
 
   function gameOver() {
