@@ -7,14 +7,14 @@
   const ZOMBIES = 'zombies';
   const WIZARD = 'wizard';
   const GALAXY = 'grass';
-  const INITIAL_MOVESPEED = 4;
+  const INITIAL_MOVESPEED = 3;
   const PLAYER_BULLET_SPEED = 6;
-  const ENEMY_SPAWN_FREQ = 600;
+  const ENEMY_SPAWN_FREQ = 150;
   const ZOMBIE_SPAWN_FREQ = 5000;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 450;
-  const SQRT_TWO = Math.sqrt(1);
+  const ENEMY_MOVE_ACCEL = 150;
+  const SQRT_TWO = Math.sqrt(2);
   const randomGenerator = new Phaser.RandomDataGenerator();
 
   
@@ -25,8 +25,8 @@
   let cursors;
   let playerBullets;
   let enemies;
-  let zombies;
-  let frameNames;
+  let score = 0;
+  let scoreText;
 
   function preload(){
     game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
@@ -36,7 +36,9 @@
   };
 
   function create(){
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.startSystem(Phaser.Physics.P2JS);
+
+    scoreText = game.add.text(16,16, 'score: 0', {fontSize: '14px', fill: '#FFF'});
 
     back = game.add.image(-500, -500, GALAXY);
 
@@ -50,6 +52,8 @@
     playerBullets = game.add.group();
 
     enemies = game.add.group();
+    enemies.enableBody = true;
+    enemies.physicsBodyType = Phaser.Physics.P2JS;
     wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
     aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
@@ -63,13 +67,16 @@
   };
 
   function update(){
+    updateScore(1);
     handlePlayerMovement();
     handleBulletAnimations();
     cleanup();
     randomlySpawnEnemy();
-    handleEnemyActions();
     handleCollisions();
     zombieAnimations();
+    handleZombieCollisions();
+
+    enemies.forEachAlive(handleEnemyActions, this);
   };
 
   //handler functions
@@ -112,7 +119,7 @@
         break;
       case cursors._right.isDown:
         player.x += player.moveSpeed * movingH;
-        break;
+        break;sa
     }      
     
     switch(true){
@@ -156,26 +163,30 @@
           bullet => enemy.overlap(bullet) 
         ) 
       );
-
     if( enemiesHit.length ){
       // clean up bullets that land
       playerBullets.children
         .filter( bullet => bullet.overlap(enemies) )
         .forEach( removeBullet );
-
       enemiesHit.forEach( destroyEnemy );
     }
       // check if enemies hit the player
       enemiesHit = enemies.children
       .filter( enemy => enemy.overlap(player) );
-  
     if( enemiesHit.length){
       handlePlayerHit();
-
       enemiesHit.forEach( destroyEnemy );
     }
 
   };
+
+  function handleZombieCollisions(){
+    let enemyCrowd = enemies.children;
+
+    enemyCrowd.forEach ( enemy => enemy.body.setCollisionGroup(zombieCollisionGroup));
+    enemyCrowd.forEach ( enemy => enemy.body.collides(zombieCollisionGroup));
+
+  }
 
   //behavior functions
   function randomlySpawnEnemy() {
@@ -197,11 +208,16 @@
     }
   }
 
-  function handleEnemyActions() {
-    enemies.children.forEach( zombie => {
-      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL, 200, 200);
-    });
+  function handleEnemyActions(zombie) {
+    accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
   }
+
+  function accelerateToObject(obj1, obj2, speed) {
+    if (typeof speed === 'undefined') { speed = ENEMY_MOVE_ACCEL; }
+    var angle = Math.atan2(obj2.y - obj1.y, obj2.x - obj1.x);
+    obj1.body.velocity.x = Math.cos(angle) * speed;    // accelerateToObject 
+    obj1.body.velocity.y = Math.sin(angle) * speed;
+}
 
 
   //utility functions
@@ -221,11 +237,12 @@
   };
 
   function removeBullet(bullet) {
+    updateScore(100000);
     bullet.destroy();
   }
 
   function destroyEnemy(enemy) {
-    enemy.kill();
+    enemy.destroy();
   }
 
   function gameOver() {
@@ -234,6 +251,11 @@
     let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
     playAgain.inputEnabled = true;
     playAgain.events.onInputUp.add(() => window.location.reload());
+  }
+
+  function updateScore(num) {
+    score += num;
+    scoreText.text = 'Score: ' + score;
   }
 
 })(window.Phaser);
