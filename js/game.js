@@ -59,6 +59,7 @@
     cursors._down = sKey;
     cursors._right = dKey;
     enemies.enableBody = true;
+
   };
 
   function update(){
@@ -80,7 +81,6 @@
         let randomY = randomGenerator.between(0, GAME_HEIGHT);
         let randomX = randomGenerator.between(0, GAME_WIDTH);
         zombies.create(randomX, randomY, ZOMBIES, 0);
-        console.log(zombies);
       }
       zombies.callAll('animations.add', 'animations', 'walk', [0, 1, 2], 5, true);
       zombies.callAll('animations.play', 'animations', 'walk');
@@ -131,7 +131,7 @@
 
   function handlePlayerFire() {
     if(playerBullets.children.length <6){
-      playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
+      playerBullets.add(game.add.sprite(player.x, player.y, WIZARD, 64));
     }
     
    };
@@ -186,8 +186,6 @@
     if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
       let randomX = randomGenerator.between(0, GAME_WIDTH);
       enemies.add( game.add.sprite(randomX, GAME_HEIGHT +24, ZOMBIES, 0) );
-      
-
     }
     if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
       let randomY = randomGenerator.between(0, GAME_HEIGHT);
