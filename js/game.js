@@ -11,8 +11,8 @@
   const ZOMBIE_SPAWN_FREQ = 5000;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 20;
-  const SQRT_TWO = Math.sqrt(2);
+  const ENEMY_MOVE_ACCEL = 450;
+  const SQRT_TWO = Math.sqrt(1);
   const randomGenerator = new Phaser.RandomDataGenerator();
 
   
@@ -43,10 +43,15 @@
     playerBullets = game.add.group();
 
     enemies = game.add.group();
+    wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
+    aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
+    dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    cursors._up = wKey;
+    cursors._left = aKey;
+    cursors._down = sKey;
+    cursors._right = dKey;
     enemies.enableBody = true;
-    enemyBullets = game.add.group();
-    enemyBullets.enableBody = true;
-
   };
 
   function update(){
@@ -85,11 +90,29 @@
       movingV = 1; // slow down diagonal movement
     }
     switch( true ){
+
       case cursors.left.isDown:
         player.angle += -4;
         break;
       case cursors.right.isDown:
         player.angle += 4;
+        break;
+    }
+    switch( true ){
+      case cursors._left.isDown:
+        player.x -= player.moveSpeed * movingH;
+        break;
+      case cursors._right.isDown:
+        player.x += player.moveSpeed * movingH;
+        break;
+    }      
+    
+    switch(true){
+      case cursors._down.isDown:
+        player.y += player.moveSpeed * movingV;
+        break;
+      case cursors._up.isDown:
+        player.y -= player.moveSpeed * movingV;
         break;
     }
   };
@@ -99,16 +122,16 @@
   }
 
   function handlePlayerFire() {
-    playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
-  };
+    if(playerBullets.children.length <6){
+      playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
+    }
+    
+   };
 
   function handleBulletAnimations(){
     playerBullets.children.forEach( (bullet, index, array) => {
-      if(index === array.length - 1){
-         bullet.x -= Math.cos(radians(player.angle+90))*PLAYER_BULLET_SPEED;
+        bullet.x -= Math.cos(radians(player.angle+90))*PLAYER_BULLET_SPEED;
         bullet.y -= Math.sin(radians(player.angle+90))*PLAYER_BULLET_SPEED;
-      }
-      
     } );
   }
 
@@ -169,7 +192,7 @@
 
   function handleEnemyActions() {
     enemies.children.forEach( zombie => {
-      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
+      game.physics.arcade.accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL, 200, 200);
     });
   }
 
@@ -177,7 +200,16 @@
   //utility functions
   function cleanup() {
     playerBullets.children
-      .filter( bullet => bullet.y < -14 )
+      .filter( bullet => bullet.y < 0 )
+      .forEach( bullet => bullet.destroy() );
+    playerBullets.children
+      .filter( bullet => bullet.x < 0 )
+      .forEach( bullet => bullet.destroy() );
+    playerBullets.children
+      .filter( bullet => bullet.x > GAME_WIDTH )
+      .forEach( bullet => bullet.destroy() );
+    playerBullets.children
+      .filter( bullet => bullet.y > GAME_HEIGHT )
       .forEach( bullet => bullet.destroy() );
   };
 
@@ -191,7 +223,7 @@
 
   function gameOver() {
     game.state.destroy();
-    game.add.text(GAME_WIDTH/2 , 200, 'YOUR HEAD ASPLODE', { fill: '#FFFFFF' });
+    game.add.text(GAME_WIDTH/2 , 200, 'YOU HAVE BEEN EATED', { fill: '#FFFFFF' });
     let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
     playAgain.inputEnabled = true;
     playAgain.events.onInputUp.add(() => window.location.reload());
