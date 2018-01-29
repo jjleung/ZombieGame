@@ -1,5 +1,3 @@
-# Phaser-ce-SHMUP
+# Wizards and Zombies
 
-Phaser-ce Shoot'em up for gamedev workshop
-
-Updated version of https://github.com/GomaGames/Phaser-SHMUP
+Phaser-ce game for Global Game Jam Honolulu 2018 by Jocelyn Belden, Steven Inouye, and Jesse Leung.

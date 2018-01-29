@@ -40,7 +40,7 @@
   function create(){
     game.physics.startSystem(Phaser.Physics.P2JS);
 
-    scoreText = game.add.text(16,16, 'score: 0', {fontSize: '14px', fill: '#FFF'});
+    scoreText = game.add.text(100,16, 'score: 0', {fontSize: '14px', fill: '#FFF'});
 
     back = game.add.image(-500, -500, GALAXY);
 
