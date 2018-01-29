@@ -3,60 +3,98 @@
   const GAME_WIDTH = window.innerWidth;
   const GAME_HEIGHT = window.innerHeight;
   const GAME_CONTAINER_ID = 'game';
-  const GFX = 'gfx';
-  const INITIAL_MOVESPEED = 4;
-  const SQRT_TWO = Math.sqrt(2);
-  const PLAYER_BULLET_SPEED = 8;
-  const ENEMY_SPAWN_FREQ = 100;
-  const randomGenerator = new Phaser.RandomDataGenerator();
+  const ZOMBIES = 'zombies';
+  const WIZARD = 'wizard';
+  const GALAXY = 'grass';
+  const ORB = 'orb';
+  const INITIAL_MOVESPEED = 3;
+  const PLAYER_BULLET_SPEED = 6;
+  const ENEMY_SPAWN_FREQ = 150;
+  const ZOMBIE_SPAWN_FREQ = 5000;
   const ENEMY_SPEED = 4.5;
+  const ENEMY_FIRE_FREQ = 30;
+  const ENEMY_MOVE_ACCEL = 150;
+  const SQRT_TWO = Math.sqrt(2);
+  const randomGenerator = new Phaser.RandomDataGenerator();
+
   
   const game = new Phaser.Game(GAME_WIDTH, GAME_HEIGHT, Phaser.AUTO, GAME_CONTAINER_ID, {preload, create, update});
 
+  let back;
   let player;
   let cursors;
   let playerBullets;
   let enemies;
-  let wKey;
-  let aKey;
-  let sKey;
-  let dKey;
+  let score = 0;
+  let scoreText;
 
   function preload(){
-    game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
+    game.load.spritesheet(ZOMBIES, '../assets/tiny-zombies.png', 30, 33, 96)
+    game.load.spritesheet(WIZARD, '../assets/wizard.png', 50, 60, 64);
+    game.load.spritesheet(ORB, '../assets/smallBLueOrb.png', 25, 25);
+    game.load.image(GALAXY, '../assets/road.png')
   };
 
   function create(){
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.startSystem(Phaser.Physics.P2JS);
+
+    scoreText = game.add.text(100,16, 'score: 0', {fontSize: '14px', fill: '#FFF'});
+
+    back = game.add.image(-500, -500, GALAXY);
+
     cursors = game.input.keyboard.createCursorKeys();
     cursors.fire = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     cursors.fire.onUp.add( handlePlayerFire );
-    player = game.add.sprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, GFX,8);
+
+    player = game.add.sprite(GAME_WIDTH / 2, GAME_HEIGHT / 2, WIZARD, 0);
     player.moveSpeed = INITIAL_MOVESPEED;
     player.anchor.setTo(0.5,0.5);
     playerBullets = game.add.group();
+
     enemies = game.add.group();
-    wKey = game.input.keyboard.addKey(Phaser.Keyboard.W)
+    enemies.enableBody = true;
+    enemies.physicsBodyType = Phaser.Physics.P2JS;
+    wKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
     aKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     sKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     dKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
     cursors._up = wKey;
-    cursors._left = akey;
+    cursors._left = aKey;
     cursors._down = sKey;
     cursors._right = dKey;
     enemies.enableBody = true;
+
+    zombieCollisionGroup = game.physics.p2.createCollisionGroup();
   };
 
   function update(){
+    updateScore(1);
     handlePlayerMovement();
     handleBulletAnimations();
     cleanup();
     randomlySpawnEnemy();
-    handleEnemyActions();
     handleCollisions();
+    zombieAnimations();
+    handleZombieCollisions();
+
+    enemies.forEachAlive(handleEnemyActions, this);
   };
 
   //handler functions
+
+  function zombieAnimations() {
+    zombies = game.add.group();
+    for (var i = 0; i < 25; i++){
+      if (randomGenerator.between(0, ZOMBIE_SPAWN_FREQ) === 0) {
+        let randomY = randomGenerator.between(0, GAME_HEIGHT);
+        let randomX = randomGenerator.between(0, GAME_WIDTH);
+        zombies.create(randomX, randomY, ZOMBIES, 0);
+        console.log(zombies);
+      }
+      zombies.callAll('animations.add', 'animations', 'walk', [0, 1, 2], 5, true);
+      zombies.callAll('animations.play', 'animations', 'walk');
+    }
+}
 
 
   function handlePlayerMovement() {
@@ -69,6 +107,7 @@
       movingV = 1; // slow down diagonal movement
     }
     switch( true ){
+
       case cursors.left.isDown:
         player.angle += -4;
         break;
@@ -77,11 +116,20 @@
         break;
     }
     switch( true ){
-      case cursors.down.isDown:
-        // player.y += player.moveSpeed;
+      case cursors._left.isDown:
+        player.x -= player.moveSpeed * movingH;
+        break;
+      case cursors._right.isDown:
+        player.x += player.moveSpeed * movingH;
+        break;sa
+    }      
+    
+    switch(true){
+      case cursors._down.isDown:
+        player.y += player.moveSpeed * movingV;
         break;
       case cursors._up.isDown:
-        player.y -= player.moveSpeed;
+        player.y -= player.moveSpeed * movingV;
         break;
     }
   };
@@ -92,7 +140,7 @@
 
   function handlePlayerFire() {
     if(playerBullets.children.length <6){
-      playerBullets.add(game.add.sprite(player.x, player.y, GFX, 7));
+      playerBullets.add(game.add.sprite(player.x, player.y, ORB, 0));
     }
     
    };
@@ -117,37 +165,65 @@
           bullet => enemy.overlap(bullet) 
         ) 
       );
-
     if( enemiesHit.length ){
       // clean up bullets that land
       playerBullets.children
         .filter( bullet => bullet.overlap(enemies) )
         .forEach( removeBullet );
-
       enemiesHit.forEach( destroyEnemy );
     }
       // check if enemies hit the player
       enemiesHit = enemies.children
       .filter( enemy => enemy.overlap(player) );
-  
     if( enemiesHit.length){
       handlePlayerHit();
-
       enemiesHit.forEach( destroyEnemy );
     }
+
   };
+
+  function handleZombieCollisions(){
+    let enemyCrowd = enemies.children;
+
+    enemyCrowd.forEach ( enemy => enemy.body.setCollisionGroup(zombieCollisionGroup));
+    enemyCrowd.forEach ( enemy => enemy.body.collides(zombieCollisionGroup));
+    enemyCrowd.forEach ( enemy => enemy.body.fixedRotation = true);
+
+  }
 
   //behavior functions
   function randomlySpawnEnemy() {
     if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
       let randomX = randomGenerator.between(0, GAME_WIDTH);
-      enemies.add( game.add.sprite(randomX, -24, GFX, 0));
+      enemies.add( game.add.sprite(randomX, -24, ZOMBIES, 0));
+    }
+    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
+      let randomX = randomGenerator.between(0, GAME_WIDTH);
+      enemies.add( game.add.sprite(randomX, GAME_HEIGHT +24, ZOMBIES, 0) );
+      
+
+    }
+    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
+      let randomY = randomGenerator.between(0, GAME_HEIGHT);
+      enemies.add( game.add.sprite(-24, randomY, ZOMBIES, 0));
+    }
+    if(randomGenerator.between(0, ENEMY_SPAWN_FREQ) === 0) {
+      let randomY = randomGenerator.between(0, GAME_HEIGHT);
+      enemies.add( game.add.sprite(GAME_WIDTH+24, randomY, ZOMBIES, 0));
     }
   }
 
-  function handleEnemyActions() {
-    enemies.children.forEach( enemy => enemy.y += ENEMY_SPEED );
-  };
+  function handleEnemyActions(zombie) {
+    accelerateToObject(zombie, player, ENEMY_MOVE_ACCEL);
+  }
+
+  function accelerateToObject(obj1, obj2, speed) {
+    if (typeof speed === 'undefined') { speed = ENEMY_MOVE_ACCEL; }
+    var angle = Math.atan2(obj2.y - obj1.y, obj2.x - obj1.x);
+    obj1.body.velocity.x = Math.cos(angle) * speed;    // accelerateToObject 
+    obj1.body.velocity.y = Math.sin(angle) * speed;
+}
+
 
   //utility functions
   function cleanup() {
@@ -158,19 +234,20 @@
       .filter( bullet => bullet.x < 0 )
       .forEach( bullet => bullet.destroy() );
     playerBullets.children
-    .filter( bullet => bullet.x > GAME_WIDTH )
-    .forEach( bullet => bullet.destroy() );
+      .filter( bullet => bullet.x > GAME_WIDTH )
+      .forEach( bullet => bullet.destroy() );
     playerBullets.children
       .filter( bullet => bullet.y > GAME_HEIGHT )
-    .forEach( bullet => bullet.destroy() );
+      .forEach( bullet => bullet.destroy() );
   };
 
   function removeBullet(bullet) {
+    updateScore(1000);
     bullet.destroy();
   }
 
   function destroyEnemy(enemy) {
-    enemy.kill();
+    enemy.destroy();
   }
 
   function gameOver() {
@@ -179,6 +256,11 @@
     let playAgain = game.add.text(GAME_WIDTH/2, 300, `Play Again`, { fill: `#FFFFFF` });
     playAgain.inputEnabled = true;
     playAgain.events.onInputUp.add(() => window.location.reload());
+  }
+
+  function updateScore(num) {
+    score += num;
+    scoreText.text = 'Score: ' + score;
   }
 
 })(window.Phaser);
