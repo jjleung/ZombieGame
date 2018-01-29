@@ -3,7 +3,6 @@
   const GAME_WIDTH = window.innerWidth;
   const GAME_HEIGHT = window.innerHeight;
   const GAME_CONTAINER_ID = 'game';
-  const GFX = 'gfx';
   const ZOMBIES = 'zombies';
   const WIZARD = 'wizard';
   const GALAXY = 'grass';
@@ -30,7 +29,6 @@
   let scoreText;
 
   function preload(){
-    game.load.spritesheet(GFX, '../assets/shmup-spritesheet-140x56-28x28-tile.png', 28, 28);
     game.load.spritesheet(ZOMBIES, '../assets/tiny-zombies.png', 30, 33, 96)
     game.load.spritesheet(WIZARD, '../assets/wizard.png', 50, 60, 64);
     game.load.spritesheet(ORB, '../assets/smallBLueOrb.png', 25, 25);
@@ -243,7 +241,7 @@
   };
 
   function removeBullet(bullet) {
-    updateScore(100000);
+    updateScore(1000);
     bullet.destroy();
   }
 
