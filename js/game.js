@@ -13,7 +13,7 @@
   const ZOMBIE_SPAWN_FREQ = 5000;
   const ENEMY_SPEED = 4.5;
   const ENEMY_FIRE_FREQ = 30;
-  const ENEMY_MOVE_ACCEL = 150;
+  const ENEMY_MOVE_ACCEL = 110;
   const SQRT_TWO = Math.sqrt(2);
   const randomGenerator = new Phaser.RandomDataGenerator();
 
