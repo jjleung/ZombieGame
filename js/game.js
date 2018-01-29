@@ -187,6 +187,7 @@
 
     enemyCrowd.forEach ( enemy => enemy.body.setCollisionGroup(zombieCollisionGroup));
     enemyCrowd.forEach ( enemy => enemy.body.collides(zombieCollisionGroup));
+    enemyCrowd.forEach ( enemy => enemy.body.fixedRotation = true);
 
   }
 
